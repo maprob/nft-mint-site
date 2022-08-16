@@ -12,7 +12,7 @@ export default function MainMint({accounts, setAccounts}) {
 
     var [mintAmount, setMintAmount] = useState(1);
     const isConnected = Boolean(accounts[0]);
-    var successMinting = false;
+    var [successMinting, setSuccessMinting] = useState(false);
     var minitingCost = setMintingCost();
     var walletAvailableMinting = setWalletMintingAmount();
 
@@ -71,9 +71,8 @@ export default function MainMint({accounts, setAccounts}) {
                     const mintTotal = (minitingCost*mintAmount).toString()
                     const options = {value: ethers.utils.parseEther(mintTotal)}
                     const res = await contract.mint(BigNumber.from(mintAmount), options);
-                    console.log(res);
                     if (res) {
-                        successMinting = true;
+                        successMinting = setSuccessMinting(!successMinting);
                     }
                 }
                 catch (err) {
