@@ -1,7 +1,7 @@
 import { React } from 'react'
-
+import { ethers } from "ethers";
 import { Button, Box, Flex, Image, Link, Spacer } from "@chakra-ui/react";
-
+import { handleNetworkConnection } from "./Helpers"
 import EmailIcon from "../assets/social-media-icons/email_32x32.png"
 import FacebookIcon from "../assets/social-media-icons/facebook_32x32.png"
 import TwitterIcon from "../assets/social-media-icons/twitter_32x32.png"
@@ -12,10 +12,14 @@ export default function NavBar({accounts, setAccounts}) {
 
     async function connectAccount() {
         if (window.ethereum) {
-            const accounts = await window.ethereum.request({
-                method: "eth_requestAccounts",
-            });
-            setAccounts(accounts);
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const res = await handleNetworkConnection(provider);
+            if (res) {
+                const accounts = await window.ethereum.request({
+                    method: "eth_requestAccounts",
+                });
+                setAccounts(accounts);
+            }
         }
     }
 

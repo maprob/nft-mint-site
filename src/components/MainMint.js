@@ -1,39 +1,68 @@
 import { useState } from "react";
 import { ethers, BigNumber } from "ethers";
 import { Button, Box, Flex, Input, Text } from "@chakra-ui/react";
+import { handleNetworkConnection } from "./Helpers";
 
 import NFT from "../NFT.json";
 //import config from "../config.json"
 
-const NFTAddress = "0xc8AEe321926a650a118E5b5CCC6DeFbeFE5BbA52";
-const minitingCost = "0.01";
+const NFTAddress = "0x94b8d59b9d1d5C82fD7893d159BB89E92a0bD736";
 
 export default function MainMint({accounts, setAccounts}) { 
 
     var [mintAmount, setMintAmount] = useState(1);
     const isConnected = Boolean(accounts[0]);
-    const appNetworkID = "4";
+    var successMinting = false;
+    var minitingCost = setMintingCost();
+    var walletAvailableMinting = setWalletMintingAmount();
+
+    async function setWalletMintingAmount() {
+        if (window.ethereum && isConnected) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            if (handleNetworkConnection(provider)) {
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(
+                    NFTAddress, NFT.abi, signer
+                );
+                try {
+                    const res = await contract.maxPerWallet();
+                    if (res) {
+                        walletAvailableMinting = parseInt(res._hex, 16);
+                    }
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            }
+        }
+    }
+
+    async function setMintingCost() {
+        if (window.ethereum && isConnected) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            if (handleNetworkConnection(provider)) {
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(
+                    NFTAddress, NFT.abi, signer
+                );
+                try {
+                    const res = await contract.mintCost();
+                    if (res) {
+                        const wei = parseInt(res._hex, 16).toString();
+                        minitingCost = ethers.utils.formatEther(wei);
+                    }
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            }
+        }
+    }
 
     async function handleMint() {
-        if (window.ethereum) {
+        if (window.ethereum && isConnected) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            
-            const networkId = await window.ethereum.request({
-                method: "net_version",
-            });
-
-            console.log(networkId);
-
-            if (networkId !== appNetworkID) {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{
-                        chainId: "0x" + appNetworkID.toString(16)
-                    }],
-                });
-            }
-
-            if (networkId === appNetworkID) {
+            if (handleNetworkConnection(provider)) {
                 const signer = provider.getSigner();
                 const contract = new ethers.Contract(
                     NFTAddress, NFT.abi, signer
@@ -43,6 +72,9 @@ export default function MainMint({accounts, setAccounts}) {
                     const options = {value: ethers.utils.parseEther(mintTotal)}
                     const res = await contract.mint(BigNumber.from(mintAmount), options);
                     console.log(res);
+                    if (res) {
+                        successMinting = true;
+                    }
                 }
                 catch (err) {
                     console.log(err);
@@ -57,7 +89,7 @@ export default function MainMint({accounts, setAccounts}) {
     }
 
     const handleIncrement = () => {
-        if (mintAmount >= 3) return;
+        if (mintAmount >= walletAvailableMinting) return;
         setMintAmount(mintAmount + 1);
     }
 
@@ -149,6 +181,17 @@ export default function MainMint({accounts, setAccounts}) {
                         You aren't connected!
                     </Text>
                 )}
+
+                {successMinting ? (
+                    <Text
+                    marginTop="70px"
+                    color="green"
+                    fontSize="24px"
+                    letterSpacing="-5.5%"
+                    textShadow="0 3px #000000"
+                >
+                    Successfully Minted!
+                </Text> ) : ( <div></div> )}
             </Box>
         </Flex>
     );

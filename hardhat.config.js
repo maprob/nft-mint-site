@@ -4,7 +4,7 @@ require("@nomiclabs/hardhat-etherscan");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.9",
+  solidity: "0.8.16",
   networks: {
     rinkeby: {
       url: process.env.RINKEBY_RPC_URL,
