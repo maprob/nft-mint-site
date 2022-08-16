@@ -90,6 +90,7 @@ https://www.youtube.com/watch?v=ynFNLBP2TPs ... Even there his contract was wron
 Add front end to detect if wallet cant mint and how much left it can.
 Add front end to dynamically load when user is minting.
 Add front end to add a "Minted!" feedback if user has minted correctly.
+Add about, team and mint routing.
 
 ## Info
 This app is boilerplate for NFT minting projects in the future. It is open source so feel free to edit it.
