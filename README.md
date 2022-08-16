@@ -85,3 +85,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 ## Credit
 https://www.youtube.com/watch?v=ynFNLBP2TPs ... Even there his contract was wrong
+
+## Todo
+Add front end to detect if wallet cant mint and how much left it can.
+Add front end to dynamically load when user is minting.
+Add front end to add a "Minted!" feedback if user has minted correctly.
+
+## Info
+This app is boilerplate for NFT minting projects in the future. It is open source so feel free to edit it.
