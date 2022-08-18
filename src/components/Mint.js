@@ -48,7 +48,6 @@ export default function Mint({accounts}) {
                     const mintTotal = (minitingCost*mintAmount).toString()
                     const options = {value: ethers.utils.parseEther(mintTotal)}
                     const res = await contract.mint(BigNumber.from(mintAmount), options);
-                    console.log(spinner);
                     if (res) {
                         setSuccessMinting(true);
                         setErrorStore(null);
@@ -56,8 +55,14 @@ export default function Mint({accounts}) {
                     }
                 }
                 catch (err) {
-                    console.log(err);
-                    setErrorStore(err);
+                    const errCode = err["error"].code;
+                    if (errCode === -32603) {
+                        const errMsg = err["error"].message.split(":")[1];
+                        setErrorStore(errMsg);
+                    }
+                    else {
+                        setErrorStore("Error Minting.");
+                    }
                     setSpinner(false);
                 }
             }
@@ -182,7 +187,7 @@ export default function Mint({accounts}) {
                         letterSpacing="-5.5%"
                         textShadow="0 3px #000000"
                     >
-                        Error Minting.
+                        {errorStore}
                     </Text> ) :
                     ( 
                         spinner ? (
