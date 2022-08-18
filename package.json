@@ -1,6 +1,7 @@
 {
   "name": "nft-mint-site",
   "version": "0.1.0",
+  "homepage": "https://maprob.github.io/nft-mint-site",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.2.8",
@@ -22,7 +23,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +49,7 @@
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "erc721a": "^4.2.2",
+    "gh-pages": "^4.0.0",
     "hardhat": "^2.10.1"
   }
 }
