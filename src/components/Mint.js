@@ -1,68 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers, BigNumber } from "ethers";
 import { Button, Box, Flex, Input, Text } from "@chakra-ui/react";
-import { handleNetworkConnection } from "./Helpers";
+import {
+    handleNetworkConnection,
+    getWalletMintable,
+    getMintingCost,
+} from "./Helpers";
 
-import NFT from "../NFT.json";
+import NFT from "../configs/NFT.json";
 //import config from "../config.json"
 
 const NFTAddress = "0x94b8d59b9d1d5C82fD7893d159BB89E92a0bD736";
 
-export default function MainMint({accounts, setAccounts}) { 
+export default function Mint({accounts}) { 
 
-    var [mintAmount, setMintAmount] = useState(1);
-    const isConnected = Boolean(accounts[0]);
+    const isConnected = Boolean(accounts);
+
     var [successMinting, setSuccessMinting] = useState(false);
-    var minitingCost = setMintingCost();
-    var walletAvailableMinting = setWalletMintingAmount();
+    var [errorStore, setErrorStore] = useState(null);
+    var [minitingCost, setMinitingCost] = useState(null);
+    var [walletMintable, setWalletMintable] = useState(null);
+    var [mintAmount, setMintAmount] = useState(1);
 
-    async function setWalletMintingAmount() {
-        if (window.ethereum && isConnected) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            if (handleNetworkConnection(provider)) {
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(
-                    NFTAddress, NFT.abi, signer
-                );
-                try {
-                    const res = await contract.maxPerWallet();
-                    if (res) {
-                        walletAvailableMinting = parseInt(res._hex, 16);
-                    }
-                }
-                catch (err) {
-                    console.log(err);
-                }
-            }
+    useEffect(() => {
+        const fetchData = async () => {
+          const mintAmountData = await getWalletMintable(isConnected);
+          const mintCostData = await getMintingCost(isConnected);
+          setWalletMintable(mintAmountData);
+          setMinitingCost(mintCostData);
         }
-    }
-
-    async function setMintingCost() {
-        if (window.ethereum && isConnected) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            if (handleNetworkConnection(provider)) {
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(
-                    NFTAddress, NFT.abi, signer
-                );
-                try {
-                    const res = await contract.mintCost();
-                    if (res) {
-                        const wei = parseInt(res._hex, 16).toString();
-                        minitingCost = ethers.utils.formatEther(wei);
-                    }
-                }
-                catch (err) {
-                    console.log(err);
-                }
-            }
-        }
-    }
+        fetchData().catch(console.error);
+      }, [isConnected])
 
     async function handleMint() {
         if (window.ethereum && isConnected) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            if (handleNetworkConnection(provider)) {
+            if (handleNetworkConnection()) {
                 const signer = provider.getSigner();
                 const contract = new ethers.Contract(
                     NFTAddress, NFT.abi, signer
@@ -72,11 +45,13 @@ export default function MainMint({accounts, setAccounts}) {
                     const options = {value: ethers.utils.parseEther(mintTotal)}
                     const res = await contract.mint(BigNumber.from(mintAmount), options);
                     if (res) {
-                        successMinting = setSuccessMinting(!successMinting);
+                        setSuccessMinting(true);
+                        setErrorStore(null);
                     }
                 }
                 catch (err) {
                     console.log(err);
+                    setErrorStore(err);
                 }
             }
         }
@@ -88,7 +63,7 @@ export default function MainMint({accounts, setAccounts}) {
     }
 
     const handleIncrement = () => {
-        if (mintAmount >= walletAvailableMinting) return;
+        if (mintAmount >= walletMintable) return;
         setMintAmount(mintAmount + 1);
     }
 
@@ -98,8 +73,8 @@ export default function MainMint({accounts, setAccounts}) {
     }
     
     return (
-        <Flex justify="center" align="center" height="100vh" paddingBottom="150px">
-            <Box width="520px">
+        <Flex justify="center" align="center" height="100vh" paddingBottom="200px">
+            <Box width="700px">
                 <div>
                     <Text fontSize="48px" textShadow="0 5px #000000">
                         RoboPunks
@@ -167,7 +142,7 @@ export default function MainMint({accounts, setAccounts}) {
                                 onClick={handleMint}
                             >
                                 Mint
-                            </Button>
+                        </Button>
                     </div>
                 ) : (
                     <Text
@@ -190,7 +165,22 @@ export default function MainMint({accounts, setAccounts}) {
                     textShadow="0 3px #000000"
                 >
                     Successfully Minted!
-                </Text> ) : ( <div></div> )}
+                </Text> ) : ( 
+                    null
+                 )}
+
+                {errorStore ? (
+                    <Text
+                    marginTop="70px"
+                    color="red"
+                    fontSize="24px"
+                    letterSpacing="-5.5%"
+                    textShadow="0 3px #000000"
+                >
+                    Error Minting.
+                </Text> ) : ( 
+                    null
+                 )}
             </Box>
         </Flex>
     );
