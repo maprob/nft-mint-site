@@ -12,21 +12,17 @@ contract NFT is ERC721, Ownable {
     uint256 public maxSupply;
     uint256 public totalSupply;
     bool public isPublicMintEnabled;
-    bool public isHiddenURI;
     string baseUri;
-    string notRevealedUri;
     mapping(address => uint256) public walletMints;
 
     constructor(
         string memory _name,
         string memory _symbol,
-        string memory _initBaseUri,
-        string memory _initNotRevealedUri
+        string memory _initBaseUri
     ) ERC721(_name, _symbol) {
         baseUri = _initBaseUri;
-        notRevealedUri = _initNotRevealedUri;
         mintCost = 0.02 ether;
-        isHiddenURI = true;
+        baseUri = "";
         totalSupply = 0;
         maxSupply = 1000;
         maxPerWallet = 3;
@@ -38,10 +34,6 @@ contract NFT is ERC721, Ownable {
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseUri;
-    }
-
-    function enableURI(bool _isHiddenURI) external onlyOwner {
-        isHiddenURI = _isHiddenURI;
     }
 
     function mint(uint256 _mintAmount) public payable {
@@ -69,10 +61,6 @@ contract NFT is ERC721, Ownable {
         _exists(_tokenId),
         "ERC721Metadata: URI query for nonexistent token"
         );
-    
-        if (isHiddenURI) {
-            return notRevealedUri;
-        }
 
         string memory currentBaseURI = _baseURI();
         return bytes(currentBaseURI).length > 0
