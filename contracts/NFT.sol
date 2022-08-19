@@ -48,7 +48,7 @@ contract NFT is ERC721, Ownable {
         require(isPublicMintEnabled, "Minting disabled by owner.");
         require(msg.value >= _mintAmount*mintCost, "Wrong mint value.");
         require(totalSupply + _mintAmount <= maxSupply, "Sold out.");
-        require(walletMints[msg.sender] + _mintAmount <= maxPerWallet, "Max collectibles reached.");
+        require(walletMints[msg.sender] + _mintAmount <= maxPerWallet, "Max collectibles minted.");
 
         // High gas fees when > 1
         for (uint256 i = 0; i < _mintAmount; i++) {
