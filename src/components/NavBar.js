@@ -1,10 +1,6 @@
-import { React, useState } from 'react';
+import { React } from 'react';
 
-import { ethers } from "ethers";
-
-import { Button, Box, Flex, Image, Spacer } from "@chakra-ui/react";
-
-import { handleNetworkConnection } from "./Helpers"
+import { Button, Box, Flex, Image, Spacer, Link } from "@chakra-ui/react";
 
 import EmailIcon from "../assets/social-media-icons/email_32x32.png"
 import FacebookIcon from "../assets/social-media-icons/facebook_32x32.png"
@@ -13,22 +9,16 @@ import TwitterIcon from "../assets/social-media-icons/twitter_32x32.png"
 export default function NavBar({
     accounts,
     setAccounts,
-    currentComponent,
-    setCurrentComponent
     }) { 
-    const [isConnected, setIsConnected] = useState(false);
+
+    const isConnected= accounts[0];
 
     async function connectAccount() {
         if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const res = await handleNetworkConnection(provider);
-            if (res) {
-                const accounts = await window.ethereum.request({
-                    method: "eth_requestAccounts",
-                });
-                setAccounts(accounts);
-                setIsConnected(true);
-            }
+            const accounts = await window.ethereum.request({
+                method: "eth_requestAccounts",
+            });
+            setAccounts(accounts);
         }
     }
 
@@ -36,15 +26,15 @@ export default function NavBar({
         <Flex justify="space-between" align="center" padding="30px">
 
             <Flex justify="space-around" width="40%" padding="0 75px">
-                <a href="www.facebook.com">
+                <Link href="https://www.facebook.com">
                     <Image src={FacebookIcon} boxSize="42px" margin="0 15px"/>
-                </a>
-                <a href="www.facebook.com">
+                </Link>
+                <Link href="#">
                     <Image src={EmailIcon} boxSize="42px" margin="0 15px"/>
-                </a>
-                <a href="www.facebook.com">
+                </Link>
+                <Link href="https://www.twitter.com">
                     <Image src={TwitterIcon} boxSize="42px" margin="0 15px"/>
-                </a>
+                </Link>
             </Flex>
 
             <Flex
@@ -54,26 +44,20 @@ export default function NavBar({
                 padding="30px 30px 30px 30px"
             >
                 <Box margin="0 15px">
-                    <button onClick={() => {setCurrentComponent(0)}}>
-                        Mint
-                    </button>
+                    Mint
                 </Box>
                 <Spacer/>
                 <Box margin="0 15px">
-                    <button onClick={() => {setCurrentComponent(1)}}>
-                        About
-                    </button>
+                    About
                 </Box>
                 <Spacer/>
                 <Box margin="0 15px">
-                    <button onClick={() => {setCurrentComponent(2)}}>
-                        Team
-                    </button>
+                    Team
                 </Box>
                 <Spacer/>
 
                 {isConnected ? (
-                <Box margin="0 15px" >{accounts[0].slice(0, 8)}...</Box>
+                <Box margin="0 15px" >Connected</Box>
                 ) : (
                     <Button
                         backgroundColor="#D6517D"

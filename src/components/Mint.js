@@ -1,71 +1,43 @@
-import { useState, useEffect } from "react";
-import { ethers, BigNumber } from "ethers";
-import { Button, Box, Flex, Input, Text, Spinner } from "@chakra-ui/react";
-import {
-    handleNetworkConnection,
-    getWalletMintable,
-    getMintingCost,
-} from "./Helpers";
+import { useState } from "react";
 
-import NFT from "../configs/NFT.json";
-//import config from "../config.json"
+import { ethers, BigNumber } from "ethers";
+
+import { Button, Box, Flex, Input, Text } from "@chakra-ui/react";
+
+import NFT from "../NFT.json";
 
 const NFTAddress = "0x94b8d59b9d1d5C82fD7893d159BB89E92a0bD736";
+const minitingCost = "0.02";
 
-export default function Mint({accounts}) { 
+export default function Mint({accounts, setAccounts}) { 
 
     const isConnected = Boolean(accounts[0]);
-
-    var [successMinting, setSuccessMinting] = useState(false);
-    var [spinner, setSpinner] = useState(false);
-    var [errorStore, setErrorStore] = useState(null);
-    var [minitingCost, setMinitingCost] = useState(null);
-    var [walletMintable, setWalletMintable] = useState(null);
     var [mintAmount, setMintAmount] = useState(1);
 
-    useEffect(() => {
-        const fetchData = async () => {
-          const mintAmountData = await getWalletMintable(isConnected);
-          const mintCostData = await getMintingCost(isConnected);
-          setWalletMintable(mintAmountData);
-          setMinitingCost(mintCostData);
-        }
-        fetchData().catch(console.error);
-      }, [isConnected])
-
     async function handleMint() {
-        if (window.ethereum && isConnected) {
-            setSpinner(true);
-            setSuccessMinting(false);
-            setErrorStore(null);
+        if (window.ethereum) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            if (handleNetworkConnection()) {
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(
-                    NFTAddress, NFT.abi, signer
-                );
-                try {
-                    const mintTotal = (minitingCost*mintAmount).toString()
-                    const options = {value: ethers.utils.parseEther(mintTotal)}
-                    const res = await contract.mint(BigNumber.from(mintAmount), options);
-                    if (res) {
-                        setSuccessMinting(true);
-                        setErrorStore(null);
-                        setSpinner(false);
-                    }
-                }
-                catch (err) {
-                    const errCode = err["error"].code;
-                    if (errCode === -32603) {
-                        const errMsg = err["error"].message.split(":")[1];
-                        setErrorStore(errMsg);
-                    }
-                    else {
-                        setErrorStore("Error Minting.");
-                    }
-                    setSpinner(false);
+
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(
+                NFTAddress, NFT.abi, signer
+            );
+
+            try {
+                
+                const mintTotal = (minitingCost*mintAmount).toString()
+                const options = {value: ethers.utils.parseEther(mintTotal)}
+                const res = await contract.mint(BigNumber.from(mintAmount), options);
+                console.log(res, mintTotal, options);
+                if (res) {
+                    console.log(res);
                 }
             }
+            catch (err) {
+                console.log(err);
+                console.err(err);
+            }
+            
         }
     }
 
@@ -75,7 +47,7 @@ export default function Mint({accounts}) {
     }
 
     const handleIncrement = () => {
-        if (mintAmount >= walletMintable) return;
+        if (mintAmount >= 3) return;
         setMintAmount(mintAmount + 1);
     }
 
@@ -168,36 +140,6 @@ export default function Mint({accounts}) {
                     </Text>
                 )}
 
-
-                {successMinting ? (
-                    <Text
-                    marginTop="30px"
-                    color="green"
-                    fontSize="24px"
-                    letterSpacing="-5.5%"
-                    textShadow="0 3px #000000"
-                >
-                    Successfully Minted!
-                </Text> ) : ( 
-                    errorStore ? (
-                        <Text
-                        marginTop="30px"
-                        color="red"
-                        fontSize="24px"
-                        letterSpacing="-5.5%"
-                        textShadow="0 3px #000000"
-                    >
-                        {errorStore}
-                    </Text> ) :
-                    ( 
-                        spinner ? (
-                            <Flex justify="center" align="center" marginTop="30px">
-                                <Spinner size="lg" color="red"/>
-                            </Flex>
-                        ) :
-                        (null)
-                    )
-                 )}
 
             </Box>
         </Flex>
