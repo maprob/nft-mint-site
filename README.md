@@ -1,7 +1,5 @@
 # WIP ❗
 
-![](https://github.com/The-Stripes-NFT/nft-minting-app/blob/main/logo-blob.png)
-
 All the code in these repos was explained by Edroh in the video below:
 
 [📺 Edroh](https://www.youtube.com/watch?v=ynFNLBP2TPs)
