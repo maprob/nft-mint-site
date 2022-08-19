@@ -34,8 +34,7 @@ export default function Mint({accounts, setAccounts}) {
                 }
             }
             catch (err) {
-                console.log(err);
-                console.err(err);
+                console.error(err);
             }
             
         }
